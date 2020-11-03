@@ -28,11 +28,20 @@ defmodule DeliveryParserWeb.PayloadValidator do
             "area_code" => :number,
             "number" => :string
           }
-        }
+        },
+        "order_items" => [:list, :map, %{
+          "item" => %{
+            "id" => :string,
+            "title" => :string
+          },
+          "unit_price" => :number,
+          "quantity" => :number,
+          "full_unit_price" => :number
+        }],
+        "payments" => [:list, :map, %{
+          "payment_type" => :string,
+          "total_paid_amount" => :number
+        }]
       }
-  end
-
-  defp check_schema() do
-    []
   end
 end
