@@ -5,37 +5,25 @@ defmodule DeliveryParserWeb.ParserController do
 
   @url "https://delivery-center-recruitment-ap.herokuapp.com/"
 
-  plug :observe
   plug :validate
 
   def parse(%{body_params: payload} = conn, _params) do
     order = payload
       |> OrderAdapter.adapt
       |> IO.inspect
-    
-    response = send order
 
-    case response do
-      {:ok, response} ->
-        if response.body == "OK" do
-          json(conn, %{ok: true, data: order})
-        else
-          json(conn, %{ok: false, error: response.body})
-        end
+    case send order do
+      {:ok, %{body: "OK"}} -> json(conn, %{ok: true, data: order})
+      {:ok, response} -> json(conn, %{ok: false, error: response.body})
       {:error, error} -> json(conn, %{ok: false, error: error.reason})
     end
-  end
-
-  defp observe(%{body_params: payload} = conn, _params) do
-    IO.inspect payload
-
-    conn
   end
 
   defp validate(%{body_params: payload} = conn, _params) do
     case PayloadValidator.valid? payload do
       :ok -> conn
-      {:error, errors} -> json(conn, %{ok: false, errors: errors}) |> halt()
+      {:error, errors} ->
+        json(conn, %{ok: false, error: Enum.join(errors, "\n")}) |> halt()
     end
   end
 
