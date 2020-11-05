@@ -8,9 +8,7 @@ defmodule DeliveryParserWeb.ParserController do
   plug :validate
 
   def parse(%{body_params: payload} = conn, _params) do
-    order = payload
-      |> OrderAdapter.adapt
-      |> IO.inspect
+    order = OrderAdapter.adapt payload
 
     result = case send order do
       {:ok, %{body: "OK"}} -> %{ok: true, data: order}
@@ -30,16 +28,13 @@ defmodule DeliveryParserWeb.ParserController do
   end
 
   defp send(order) do
-    response =
-      HTTPoison.post @url,
+    HTTPoison.post @url,
       Jason.encode!(order),
       [{"Content-Type", "application/json"}, {"X-Sent", x_sent()}]
-
-    IO.inspect response
   end
 
   defp x_sent do
     Timex.now("America/Sao_Paulo")
-    |> Timex.format! "{h24}h{m} - {0D}/{0M}/{YY}"
+    |> Timex.format!("{h24}h{m} - {0D}/{0M}/{YY}")
   end
 end
