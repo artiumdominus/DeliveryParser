@@ -12,11 +12,13 @@ defmodule DeliveryParserWeb.ParserController do
       |> OrderAdapter.adapt
       |> IO.inspect
 
-    case send order do
-      {:ok, %{body: "OK"}} -> json(conn, %{ok: true, data: order})
-      {:ok, response} -> json(conn, %{ok: false, error: response.body})
-      {:error, error} -> json(conn, %{ok: false, error: error.reason})
+    result = case send order do
+      {:ok, %{body: "OK"}} -> %{ok: true, data: order}
+      {:ok, response} -> %{ok: false, error: response.body}
+      {:error, error} -> %{ok: false, error: error.reason}
     end
+
+    json(conn, result)
   end
 
   defp validate(%{body_params: payload} = conn, _params) do
@@ -31,12 +33,13 @@ defmodule DeliveryParserWeb.ParserController do
     response =
       HTTPoison.post @url,
       Jason.encode!(order),
-      [{"Content-Type", "application/json"}, {"X-Sent", x_sent_header()}]
+      [{"Content-Type", "application/json"}, {"X-Sent", x_sent()}]
 
     IO.inspect response
   end
 
-  defp x_sent_header do
-
+  defp x_sent do
+    Timex.now("America/Sao_Paulo")
+    |> Timex.format! "{h24}h{m} - {0D}/{0M}/{YY}"
   end
 end

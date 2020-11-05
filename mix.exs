@@ -46,7 +46,9 @@ defmodule DeliveryParser.MixProject do
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
       {:httpoison, "~> 1.7"},
-      {:skooma, "~> 0.2.0"}
+      {:skooma, "~> 0.2.0"},
+      {:tzdata, "~> 1.0.4"},
+      {:timex, "~> 3.5"}
     ]
   end
 
